@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-primary-100 selection:text-primary-900;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom scrollbars for a premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+
+/* Smooth active states & focus outlines */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+/* Text clipping utility for gradients */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-primary-500 to-cyan-500;
+}
