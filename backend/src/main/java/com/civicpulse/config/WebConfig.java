@@ -1,0 +1,22 @@
+package com.civicpulse.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import java.io.File;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Create uploads folder if it doesn't exist
+        File dir = new File("uploads");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
+    }
+}

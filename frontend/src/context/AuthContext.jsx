@@ -9,9 +9,20 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState([]);
 
-  // Immediately finish loading session as there is no local persistence
+  // Load session from localStorage on initialization
   useEffect(() => {
-    setLoading(false);
+    try {
+      const savedToken = localStorage.getItem('civicpulse_token');
+      const savedUser = localStorage.getItem('civicpulse_user');
+      if (savedToken && savedUser) {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (e) {
+      console.error('Failed to load session from localStorage:', e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   /**
@@ -43,14 +54,21 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await authService.login(email, password);
 
-      // Update in-memory authorization header
-      setUser({
+      // Persist in localStorage
+      localStorage.setItem('civicpulse_token', data.token);
+      
+      const userPayload = {
         id: data.id,
         name: data.name,
         email: data.email,
         phoneNumber: data.phoneNumber,
         role: data.role
-      });
+      };
+      
+      localStorage.setItem('civicpulse_user', JSON.stringify(userPayload));
+
+      setToken(data.token);
+      setUser(userPayload);
 
       showToast('success', 'Login Successful! Welcome to CivicPulse.');
       return data;
@@ -75,7 +93,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const data = await authService.register(name, email, phoneNumber, password, confirmPassword);
-      showToast('success', 'Registration Successful');
+      showToast('success', 'Registration Successful. You can now login.');
       return data;
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || 'Server Error. Please try again.';
@@ -90,7 +108,8 @@ export const AuthProvider = ({ children }) => {
    * Logs out the user
    */
   const logout = () => {
-    authService.setToken(null);
+    localStorage.removeItem('civicpulse_token');
+    localStorage.removeItem('civicpulse_user');
     setToken(null);
     setUser(null);
     showToast('info', 'Logged out successfully.');
@@ -104,4 +123,3 @@ export const AuthProvider = ({ children }) => {
 };
 
 export default AuthContext;
-
